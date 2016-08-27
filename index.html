@@ -44,11 +44,37 @@ dd {
 var primus = Primus.connect()
 var gebi = id => document.getElementById(id)
 
+function setStatusMessage(message) {
+    console.log('Status: '+message)
+    gebi('status').innerHTML = message
+}
+
 primus.on('data', function message(data) {
     console.log('received a new message from the server', data)
     gebi('messages').insertAdjacentHTML('beforeend',
             '<dt>' + data.message.speaker + '</dt>' +
             '<dd>' + data.message.message + '</dd>')
+})
+
+// hook up status events to the status area
+primus.on('open', function(opts) {
+    setStatusMessage('Connected to server')
+})
+primus.on('reconnect', function(opts) {
+    setStatusMessage('Attempting to reconnect...')
+})
+primus.on('reconnect scheduled', function(opts) {
+    setStatusMessage('Reconnecting in '+opts.scheduled+'ms ('+
+                opts.attempt+'/'+opts.retries+')')
+})
+primus.on('reconnected', function(opts) {
+    setStatusMessage('Reconnected')
+})
+primus.on('reconnect timeout', function(opts) {
+    setStatusMessage('Reconnect timeout')
+})
+primus.on('reconnect failed', function(err, opts) {
+    setStatusMessage('The reconnection failed: '+err.messages)
 })
 
 
