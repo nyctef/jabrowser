@@ -1,16 +1,28 @@
 <html>
-    <head>
-        <script src="/primus/primus.js"></script>
-        <script>
+<head>
+<script src="/primus/primus.js"></script>
+<script>
 
 var primus = Primus.connect()
+var gebi = id => document.getElementById(id)
 
 primus.on('data', function message(data) {
     console.log('received a new message from the server', data)
+    gebi('messages').insertAdjacentHTML('beforeend',
+            '<dt>' + data.message.speaker + '</dt>' +
+            '<dd>' + data.message.message + '</dd>')
 })
 
 
-        </script>
-    </head>
+</script>
+</head>
 
+<body>
+
+    <p id='status'></p>
+    <dl id='messages'>
+
+    </dl>
+
+</body>
 </html>
