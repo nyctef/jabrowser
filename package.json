@@ -1,0 +1,11 @@
+{
+  "name": "jabrowser",
+  "version": "0.1.0",
+  "description": "minimal jabber client in a browser window",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "@nyctef (Mark Jordan)",
+  "license": "ISC"
+}
