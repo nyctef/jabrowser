@@ -7,5 +7,10 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "@nyctef (Mark Jordan)",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "engine.io": "^1.6.11",
+    "node-xmpp-client": "^3.0.2",
+    "primus": "^6.0.2"
+  }
 }
