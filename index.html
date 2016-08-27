@@ -1,0 +1,16 @@
+<html>
+    <head>
+        <script src="/primus/primus.js"></script>
+        <script>
+
+var primus = Primus.connect()
+
+primus.on('data', function message(data) {
+    console.log('received a new message from the server', data)
+})
+
+
+        </script>
+    </head>
+
+</html>
