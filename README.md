@@ -7,3 +7,11 @@ Getting started
 - `npm install` to fetch dependencies
 - `node index.js` to start running
 - browse to `localhost:3333` to see the chat
+
+How it works
+- `node-xmpp-client` connects to the specified xmpp groupchat and sets up muc events for when groupchat things happen
+- `http.server` sets up a very basic http server which serves `index.html`
+- `primus` attaches onto the http server and serves websockets from it
+- `primus` also serves up `/primus/primus.js` (consumed by `index.html`) which contains js to connect the browser to the server's websockets
+- when a browser connects, we hook up the muc events to send messages to the browser
+- the js in `index.html` handles these events and displays them in html
