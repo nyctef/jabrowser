@@ -142,18 +142,32 @@ var primus = new Primus(server, {
   transformer: 'engine.io',
 })
 
-// when a client makes a websocket connection, start sending it xmpp messages
-// TODO: unsubscribe? probably want to make a separate list of sparks
-// and manage that independently
+// list of clients that should receive messages (by spark.id)
+var clients = {}
+
+// when a client connects, add it to the list of clients that should receive messages
 primus.on('connection', function(spark) {
-  log(`we got a connection from ${spark.address} called ${spark.id}`)
-  mucEvents.on('incoming_message', function(message) {
-    log(`sending incoming_message to ${spark.id}`)
-    spark.write({type: 'incoming_message', message: message})
-  })
+  log(`we got a connection from ${spark.address.ip}:${spark.address.port} called ${spark.id}`)
+  clients[spark.id] = spark
 })
 
+// when a client disconnects, remove it from the list of clients that should receive messages
 primus.on('disconnection', function(spark) {
-  log(`we got a disconnection from ${spark.address} called ${spark.id}`)
+  log(`we got a disconnection from ${spark.address.ip}:${spark.address.port} called ${spark.id}`)
+  delete clients[spark.id]
+})
+
+// send some data to all known clients
+function sendToClients(type, message) {
+  Object.keys(clients).forEach(function(id) {
+    var spark = clients[id]
+    log(`sending ${type} to ${spark.id}`)
+    spark.write({type: type, message: message})
+  })
+}
+
+// when an incoming message happens, send it to all connected clients
+mucEvents.on('incoming_message', function(message) {
+  sendToClients('incoming_message', message)
 })
 
