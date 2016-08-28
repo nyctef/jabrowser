@@ -15,6 +15,7 @@ var mucEvents = new EventEmitter()
 var client = new XmppClient({
   jid: config.jid,
   password: config.password,
+  reconnect: true,
 })
 
 // when the xmpp client connects, join to the room we have configured
