@@ -51,6 +51,11 @@ client.on('error', function (err) {
   process.exit(1)
 })
 
+client.on('offline', function() {
+  // TODO: does this mean we should reconnect? or will reconnect:true handle this?
+  console.error('xmpp client went offline')
+})
+
 // join a specific xmpp muc room
 function joinRoom(client, jid, room, roomNick) {
   log('joining room ' + room + ' with nick ' + roomNick)
