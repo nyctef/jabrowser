@@ -151,10 +151,17 @@ var primus = new Primus(server, {
 // list of clients that should receive messages (by spark.id)
 var clients = {}
 
+// list of historical messages to send to newly-connecting clients
+var historicalMessages = []
+
 // when a client connects, add it to the list of clients that should receive messages
 primus.on('connection', function(spark) {
   log(`we got a connection from ${spark.address.ip}:${spark.address.port} called ${spark.id}`)
   clients[spark.id] = spark
+  spark.write({type: 'reset_messages'})
+  historicalMessages.forEach(function (message) {
+    spark.write({type: 'incoming_message', message: message})
+  })
 })
 
 // when a client disconnects, remove it from the list of clients that should receive messages
@@ -174,6 +181,7 @@ function sendToClients(type, message) {
 
 // when an incoming message happens, send it to all connected clients
 mucEvents.on('incoming_message', function(message) {
+  historicalMessages.push(message)
   sendToClients('incoming_message', message)
 })
 

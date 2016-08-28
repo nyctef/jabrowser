@@ -49,11 +49,23 @@ function setStatusMessage(message) {
     gebi('status').innerHTML = message
 }
 
+function addMessage(message) {
+    gebi('messages').insertAdjacentHTML('beforeend',
+            '<dt>' + message.speaker + '</dt>' +
+            '<dd>' + message.message + '</dd>')
+}
+
+function resetMessages(message) {
+    gebi('messages').innerHTML = ''
+}
+
 primus.on('data', function message(data) {
     console.log('received a new message from the server', data)
-    gebi('messages').insertAdjacentHTML('beforeend',
-            '<dt>' + data.message.speaker + '</dt>' +
-            '<dd>' + data.message.message + '</dd>')
+    switch (data.type) {
+        case 'reset_messages': resetMessages(); break;
+        case 'incoming_message': addMessage(data.message); break;
+        default: console.log('unknown message type'); break
+    }
 })
 
 // hook up status events to the status area
