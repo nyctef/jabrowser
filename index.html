@@ -50,13 +50,21 @@ function setStatusMessage(message) {
 }
 
 function addMessage(message) {
-    gebi('messages').insertAdjacentHTML('beforeend',
+    var messages = gebi('messages')
+    var isCurrentlyScrolledToBottom = (messages.scrollTop + messages.clientHeight) >= messages.scrollHeight
+
+    messages.insertAdjacentHTML('beforeend',
             '<dt>' + message.speaker + '</dt>' +
             '<dd>' + message.message + '</dd>')
+
+    if (isCurrentlyScrolledToBottom) {
+        messages.scrollTop = messages.scrollHeight
+    }
 }
 
 function resetMessages(message) {
-    gebi('messages').innerHTML = ''
+    var messages = gebi('messages')
+    messages.innerHTML = ''
 }
 
 primus.on('data', function message(data) {
