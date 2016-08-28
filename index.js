@@ -194,4 +194,9 @@ mucEvents.on('incoming_message', function(message) {
   historicalMessages.push(message)
   sendToClients('incoming_message', message)
 })
+// let's do the same for delayed messages
+mucEvents.on('delayed_message', function(message) {
+  historicalMessages.push(message)
+  sendToClients('incoming_message', message)
+})
 
