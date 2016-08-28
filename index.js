@@ -18,6 +18,10 @@ var client = new XmppClient({
   reconnect: true,
 })
 
+// suggested boilerplate to try and keep connections alive
+client.connection.socket.setTimeout(0)
+client.connection.socket.setKeepAlive(true, 10000)
+
 // when the xmpp client connects, join to the room we have configured
 client.on('online', function(data) {
   var jid = data.jid
@@ -54,6 +58,12 @@ client.on('error', function (err) {
 client.on('offline', function() {
   // TODO: does this mean we should reconnect? or will reconnect:true handle this?
   console.error('xmpp client went offline')
+});
+
+['end', 'close', 'error', 'connect', 'reconnect', 'disconnect'].forEach(function(eventName) {
+  client.on(eventName, function(arg1, arg2, arg3) {
+    console.error('client raised event: '+eventName, arg1, arg2, arg3)
+  })
 })
 
 // join a specific xmpp muc room
