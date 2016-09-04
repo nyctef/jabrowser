@@ -82,6 +82,22 @@ function joinRoomStanza(jid, room, roomNick) {
   }).c('x', {xmlns: mucxmlns})
 }
 
+// send a message to an xmpp muc room
+function sendGroupchatMessage(client, jid, room, message) {
+  log(`sending message ${message} to room ${room} from ${jid}`)
+  var stanza = groupchatStanza(jid, room, message)
+  client.send(stanza)
+}
+
+// construct a stanza for sending a message to an xmpp muc room
+function groupchatStanza(jid, room, message) {
+  return new XmppClient.Stanza('message', {
+    type: 'groupchat',
+    from: jid.toString(),
+    to: room,
+  }).c('body').t(message)
+}
+
 // handle xmpp muc groupchat messages
 function handleGroupchat(stanza) {
   if (stanza.getChild('subject')) {
@@ -164,9 +180,18 @@ var clients = {}
 // list of historical messages to send to newly-connecting clients
 var historicalMessages = []
 
+// handle incoming data from browsersand route appropriately
+function handleIncomingData(data) {
+  switch (data.type) {
+    case 'outgoing_message': sendGroupchatMessage(client, config.jid, config.room, data.message.message); break;
+    default: console.log('unknown message type', data); break;
+  }
+}
+
 // when a client connects, add it to the list of clients that should receive messages
 primus.on('connection', function(spark) {
   log(`we got a connection from ${spark.address.ip}:${spark.address.port} called ${spark.id}`)
+  spark.on('data', handleIncomingData)
   clients[spark.id] = spark
   spark.write({type: 'reset_messages'})
   historicalMessages.forEach(function (message) {

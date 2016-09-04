@@ -8,7 +8,12 @@ html, body { height: 100%; margin: 0; overflow-x:hidden }
 .box .row { border: 1px dotted grey; }
 .box .row.header { flex: 0 1 auto; }
 .box .row.content { flex: 1 1 auto; }
-.box .row.footer { flex: 0 1 40px; }
+.box .row.footer { flex: 0 1 auto; }
+
+.box-columns { display: flex; flex-flow: row; width: 100% }
+
+.box-columns .content { flex: 1 1 auto; }
+.box-columns .fixed { flex: 0 1 auto; }
 
 body { background: white; font-family:consolas,monospaced }
 dt {font-weight:bold}
@@ -36,7 +41,9 @@ dd {
   margin: 0;
 }
 
+#entry { margin: 0; }
 
+form { margin: 0 }
 </style>
 <script src="/primus/primus.js"></script>
 <script>
@@ -72,7 +79,7 @@ primus.on('data', function message(data) {
     switch (data.type) {
         case 'reset_messages': resetMessages(); break;
         case 'incoming_message': addMessage(data.message); break;
-        default: console.log('unknown message type'); break
+        default: console.log('unknown message type', data); break
     }
 })
 
@@ -97,6 +104,25 @@ primus.on('reconnect failed', function(err, opts) {
     setStatusMessage('The reconnection failed: '+err.messages)
 })
 
+function submitMessage(messageText) {
+    console.log("Sending message", messageText)
+    primus.write({
+        type: 'outgoing_message',
+        message: { message : messageText }
+    })
+}
+
+function submitEntry() {
+    var entry = document.getElementById('entry')
+    var message = entry.innerText
+    if (!message) {
+        console.log('<nothing to submit>')
+        return
+    }
+    submitMessage(message)
+    entry.innerText = ""
+}
+
 
 </script>
 </head>
@@ -104,15 +130,33 @@ primus.on('reconnect failed', function(err, opts) {
 <body>
 
     <div class='box'>
-    <p id='status' class='row header'>Loading...</p>
-    <dl id='messages' class='row content'>
-
-  <dt>A_User</dt>
-  <dd>a message</dd>
-  <dt> a user with a longer name</dt>
-  <dd>a message</dd>
-    </dl>
+        <p id='status' class='row header'>Loading...</p>
+        <dl id='messages' class='row content'>
+            <dt>A_User</dt>
+            <dd>a message</dd>
+            <dt> a user with a longer name</dt>
+            <dd>a message</dd>
+        </dl>
+        <div class='row footer'>
+            <form id=entryForm class='box-columns' action='javascript:submitEntry()'>
+                <p id='entry' class='content editable' contenteditable></p>
+                <button class='fixed' type='submit'>Submit</button>
+            </div>
+        </div>
     </div>
 
+    <script>
+
+// submit form on enter (but not shift+enter)
+document.getElementById('entry').onkeydown = function (evt) {
+    var keyCode = evt ? (evt.which ? evt.which : evt.keyCode) : event.keyCode
+    var enterKeyCode = 13
+    if (keyCode == enterKeyCode && !evt.shiftKey)
+    {
+        document.getElementById('entryForm').submit()
+        return false
+    }
+}
+    </script>
 </body>
 </html>
